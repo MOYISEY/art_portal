@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Главная - Арт-Портал{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Баннер -->
+    <div class="bg-primary text-white p-5 rounded-3 mb-5">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-4 fw-bold">Добро пожаловать на Арт-Портал!</h1>
+                <p class="fs-5">Платформа для публикации и обсуждения культурных и художественных проектов студентов.</p>
+                <div class="mt-4">
+                    <a href="{% url 'project_list' %}" class="btn btn-light btn-lg me-2">Смотреть проекты</a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'project_create' %}" class="btn btn-outline-light btn-lg">Создать проект</a>
+                    {% else %}
+                        <a href="{% url 'account_signup' %}" class="btn btn-outline-light btn-lg">Присоединиться</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-4 d-none d-md-block">
+                <img src="https://via.placeholder.com/400x300" alt="Арт-Портал" class="img-fluid rounded">
+            </div>
+        </div>
+    </div>
+
+    <!-- Популярные проекты -->
+    <section class="mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Популярные проекты</h2>
+            <a href="{% url 'project_list' %}?sort=-views_count" class="btn btn-outline-primary">Смотреть все</a>
+        </div>
+        <div class="row">
+            {% for project in featured_projects %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <img src="{{ project.thumbnail.url }}" class="card-img-top project-thumbnail" alt="{{ project.title }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ project.title }}</h5>
+                            <p class="card-text text-muted">{{ project.description|truncatechars:100 }}</p>
+                        </div>
+                        <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted">
+                                    <i class="fas fa-eye me-1"></i> {{ project.views_count }}
+                                    <i class="fas fa-heart ms-2 me-1"></i> {{ project.likes_count }}
+                                </small>
+                            </div>
+                            <a href="{% url 'project_detail' project.slug %}" class="btn btn-sm btn-primary">Подробнее</a>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info">Пока нет популярных проектов.</div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Категории -->
+    <section class="mb-5">
+        <h2 class="mb-4">Категории проектов</h2>
+        <div class="row">
+            {% for category in all_categories %}
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <a href="{% url 'category_detail' category.slug %}" class="text-decoration-none">
+                        <div class="card category-card h-100 shadow-sm">
+                            {% if category.image %}
+                                <img src="{{ category.image.url }}" class="card-img-top" alt="{{ category.name }}">
+                            {% else %}
+                                <img src="https://via.placeholder.com/300x200?text={{ category.name }}" class="card-img-top" alt="{{ category.name }}">
+                            {% endif %}
+                            <div class="card-body text-center">
+                                <h5 class="card-title">{{ category.name }}</h5>
+                                <p class="card-text text-muted small">{{ category.description|truncatechars:60 }}</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info">Пока нет категорий.</div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Последние проекты -->
+    <section class="mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Новые проекты</h2>
+            <a href="{% url 'project_list' %}" class="btn btn-outline-primary">Смотреть все</a>
+        </div>
+        <div class="row">
+            {% for project in latest_projects %}
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <img src="{{ project.thumbnail.url }}" class="card-img-top" alt="{{ project.title }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ project.title }}</h5>
+                            <p class="card-text small text-muted">{{ project.description|truncatechars:80 }}</p>
+                        </div>
+                        <div class="card-footer bg-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">{{ project.created_at|date:"d.m.Y" }}</small>
+                                <a href="{% url 'project_detail' project.slug %}" class="btn btn-sm btn-outline-primary">Подробнее</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info">Пока нет новых проектов.</div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}
+

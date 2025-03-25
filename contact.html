@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}Контакты - Арт-Портал{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="mb-4">Контакты</h1>
+            
+            <div class="row mb-5">
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <div class="card h-100 text-center">
+                        <div class="card-body">
+                            <i class="fas fa-envelope fa-3x text-primary mb-3"></i>
+                            <h5>Email</h5>
+                            <p>info@art-portal.ru</p>
+                            <p>support@art-portal.ru</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <div class="card h-100 text-center">
+                        <div class="card-body">
+                            <i class="fas fa-phone fa-3x text-primary mb-3"></i>
+                            <h5>Телефон</h5>
+                            <p>+7 (999) 123-45-67</p>
+                            <p>+7 (999) 765-43-21</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 text-center">
+                        <div class="card-body">
+                            <i class="fas fa-map-marker-alt fa-3x text-primary mb-3"></i>
+                            <h5>Адрес</h5>
+                            <p>г. Москва, ул. Примерная, д. 123</p>
+                            <p>Индекс: 123456</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-5">
+                <div class="card-body">
+                    <h2 class="mb-4">Напишите нам</h2>
+                    <form>
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <label for="name" class="form-label">Имя</label>
+                                <input type="text" class="form-control" id="name" placeholder="Ваше имя">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" placeholder="Ваш email">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Тема</label>
+                            <input type="text" class="form-control" id="subject" placeholder="Тема сообщения">
+                        </div>
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Сообщение</label>
+                            <textarea class="form-control" id="message" rows="5" placeholder="Ваше сообщение"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Отправить сообщение</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="mb-4">Мы в социальных сетях</h2>
+                    <div class="row text-center">
+                        <div class="col-md-3 col-6 mb-4">
+                            <a href="#" class="text-decoration-none">
+                                <div class="social-icon mb-2">
+                                    <i class="fab fa-vk fa-3x text-primary"></i>
+                                </div>
+                                <h5>ВКонтакте</h5>
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-6 mb-4">
+                            <a href="#" class="text-decoration-none">
+                                <div class="social-icon mb-2">
+                                    <i class="fab fa-telegram fa-3x text-primary"></i>
+                                </div>
+                                <h5>Telegram</h5>
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-6 mb-4">
+                            <a href="#" class="text-decoration-none">
+                                <div class="social-icon mb-2">
+                                    <i class="fab fa-youtube fa-3x text-primary"></i>
+                                </div>
+                                <h5>YouTube</h5>
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-6 mb-4">
+                            <a href="#" class="text-decoration-none">
+                                <div class="social-icon mb-2">
+                                    <i class="fab fa-instagram fa-3x text-primary"></i>
+                                </div>
+                                <h5>Instagram</h5>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

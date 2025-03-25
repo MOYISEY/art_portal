@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ category.name }} - Арт-Портал{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Хлебные крошки -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'category_list' %}">Категории</a></li>
+            <li class="breadcrumb-item active">{{ category.name }}</li>
+        </ol>
+    </nav>
+    
+    <!-- Информация о категории -->
+    <div class="card mb-4">
+        <div class="row g-0">
+            <div class="col-md-4">
+                {% if category.image %}
+                    <img src="{{ category.image.url }}" class="img-fluid rounded-start h-100" alt="{{ category.name }}" style="object-fit: cover;">
+                {% else %}
+                    <div class="bg-light d-flex align-items-center justify-content-center h-100" style="min-height: 250px;">
+                        <i class="fas fa-folder-open fa-5x text-secondary"></i>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h1 class="card-title">{{ category.name }}</h1>
+                    <p class="card-text">{{ category.description }}</p>
+                    <p class="card-text">
+                        <small class="text-muted">Создано: {{ category.created_at|date:"d.m.Y" }}</small>
+                    </p>
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-primary me-2">{{ projects.count }} проектов</span>
+                        <a href="{% url 'project_list' %}?category={{ category.slug }}" class="btn btn-outline-primary">Все проекты категории</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Проекты категории -->
+    <h2 class="mb-4">Проекты в категории "{{ category.name }}"</h2>
+    
+    <div class="row">
+        {% for project in projects %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <img src="{{ project.thumbnail.url }}" class="card-img-top project-thumbnail" alt="{{ project.title }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ project.title }}</h5>
+                        <p class="card-text text-muted">{{ project.description|truncatechars:120 }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="small text-muted">
+                                <i class="fas fa-calendar me-1"></i> {{ project.created_at|date:"d.m.Y" }}
+                            </div>
+                            <div class="small text-muted">
+                                <i class="fas fa-eye me-1"></i> {{ project.views_count }}
+                                <i class="fas fa-heart ms-2 me-1"></i> {{ project.likes_count }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                {% if project.author.avatar %}
+                                    <img src="{{ project.author.avatar.url }}" alt="{{ project.author.username }}" class="avatar-sm me-2">
+                                {% else %}
+                                    <i class="fas fa-user-circle fa-2x me-2 text-secondary"></i>
+                                {% endif %}
+                                <span class="small">{{ project.author.get_full_name }}</span>
+                            </div>
+                            <a href="{% url 'project_detail' project.slug %}" class="btn btn-sm btn-primary">Подробнее</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    В этой категории пока нет проектов.
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+

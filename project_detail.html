@@ -1,0 +1,314 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}{{ project.title }} - Арт-Портал{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <!-- Основное содержимое проекта -->
+        <div class="col-lg-8">
+            <!-- Хлебные крошки -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">Главная</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'project_list' %}">Проекты</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'category_detail' project.category.slug %}">{{ project.category.name }}</a></li>
+                    <li class="breadcrumb-item active">{{ project.title }}</li>
+                </ol>
+            </nav>
+            
+            <!-- Заголовок и мета-информация -->
+            <h1 class="mb-3">{{ project.title }}</h1>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="d-flex align-items-center">
+                    <a href="{% url 'user_profile' project.author.username %}" class="text-decoration-none text-dark">
+                        {% if project.author.avatar %}
+                            <img src="{{ project.author.avatar.url }}" alt="{{ project.author.username }}" class="avatar-sm me-2">
+                        {% else %}
+                            <i class="fas fa-user-circle fa-2x me-2 text-secondary"></i>
+                        {% endif %}
+                        <span>{{ project.author.get_full_name }}</span>
+                    </a>
+                </div>
+                <div class="text-muted small">
+                    <i class="fas fa-calendar me-1"></i> {{ project.created_at|date:"d.m.Y" }}
+                    {% if project.updated_at != project.created_at %}
+                        <span class="ms-2"><i class="fas fa-edit me-1"></i> Обновлено: {{ project.updated_at|date:"d.m.Y" }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Изображение проекта -->
+            <div class="mb-4">
+                <img src="{{ project.thumbnail.url }}" alt="{{ project.title }}" class="img-fluid rounded">
+            </div>
+            
+            <!-- Описание проекта -->
+            <div class="mb-4">
+                <h4>Описание</h4>
+                <p class="lead">{{ project.description }}</p>
+            </div>
+            
+            <!-- Содержание проекта -->
+            <div class="mb-5">
+                <h4>Содержание</h4>
+                <div class="project-content">
+                    {{ project.content|safe }}
+                </div>
+            </div>
+            
+            <!-- Галерея изображений -->
+            {% if project.images.exists %}
+                <div class="mb-5">
+                    <h4>Галерея</h4>
+                    <div class="row">
+                        {% for image in project.images.all %}
+                            <div class="col-md-4 mb-3">
+                                <a href="{{ image.image.url }}" data-lightbox="project-gallery" data-title="{{ image.caption }}">
+                                    <img src="{{ image.image.url }}" alt="{{ image.caption }}" class="img-fluid rounded">
+                                </a>
+                                {% if image.caption %}
+                                    <p class="small text-muted mt-1">{{ image.caption }}</p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Теги -->
+            {% if project.tags.exists %}
+                <div class="mb-5">
+                    <h4>Теги</h4>
+                    <div>
+                        {% for tag in project.tags.all %}
+                            <a href="{% url 'project_list' %}?q={{ tag.name }}" class="badge bg-secondary text-decoration-none me-1 mb-1">{{ tag.name }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Комментарии -->
+            <div class="mb-5">
+                <h4>Комментарии ({{ comments.count }})</h4>
+                
+                <!-- Форма добавления комментария -->
+                {% if user.is_authenticated %}
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <form method="post" action="{% url 'comment_create' project.id %}" id="comment-form">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    {{ comment_form.content }}
+                                </div>
+                                <button type="submit" class="btn btn-primary">Отправить комментарий</button>
+                            </form>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info mb-4">
+                        <a href="{% url 'account_login' %}?next={{ request.path }}">Войдите</a> или <a href="{% url 'account_signup' %}">зарегистрируйтесь</a>, чтобы оставить комментарий.
+                    </div>
+                {% endif %}
+                
+                <!-- Список комментариев -->
+                <div id="comments-list">
+                    {% for comment in comments %}
+                        <div class="card mb-3" id="comment-{{ comment.id }}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="d-flex align-items-center">
+                                        <a href="{% url 'user_profile' comment.author.username %}" class="text-decoration-none text-dark">
+                                            {% if comment.author.avatar %}
+                                                <img src="{{ comment.author.avatar.url }}" alt="{{ comment.author.username }}" class="avatar-sm me-2">
+                                            {% else %}
+                                                <i class="fas fa-user-circle fa-2x me-2 text-secondary"></i>
+                                            {% endif %}
+                                            <span>{{ comment.author.get_full_name }}</span>
+                                        </a>
+                                    </div>
+                                    <small class="text-muted">{{ comment.created_at|naturaltime }}</small>
+                                </div>
+                                <p class="mb-1">{{ comment.content }}</p>
+                                {% if user == comment.author %}
+                                    <div class="text-end">
+                                        <form method="post" action="{% url 'comment_delete' comment.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Удалить</button>
+                                        </form>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="alert alert-light">Пока нет комментариев. Будьте первым!</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Боковая панель -->
+        <div class="col-lg-4">
+            <!-- Информация о проекте -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Информация о проекте</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-eye me-2"></i> {{ project.views_count }} просмотров
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-heart me-2 {% if user_liked %}text-danger{% endif %}" id="like-icon"></i>
+                            <span id="likes-count">{{ project.likes_count }}</span> лайков
+                            {% if user.is_authenticated %}
+                                <button class="btn btn-sm btn-outline-primary ms-2" id="like-button">
+                                    {% if user_liked %}Убрать лайк{% else %}Лайкнуть{% endif %}
+                                </button>
+                            {% endif %}
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-comment me-2"></i> {{ comments.count }} комментариев
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-tag me-2"></i> Категория: 
+                            <a href="{% url 'category_detail' project.category.slug %}">{{ project.category.name }}</a>
+                        </li>
+                    </ul>
+                </div>
+                {% if user == project.author %}
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'project_update' project.slug %}" class="btn btn-sm btn-primary">Редактировать</a>
+                            <a href="{% url 'project_delete' project.slug %}" class="btn btn-sm btn-danger">Удалить</a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Об авторе -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Об авторе</h5>
+                </div>
+                <div class="card-body text-center">
+                    <a href="{% url 'user_profile' project.author.username %}" class="text-decoration-none text-dark">
+                        {% if project.author.avatar %}
+                            <img src="{{ project.author.avatar.url }}" alt="{{ project.author.username }}" class="avatar-lg mb-3">
+                        {% else %}
+                            <i class="fas fa-user-circle fa-5x mb-3 text-secondary"></i>
+                        {% endif %}
+                        <h5>{{ project.author.get_full_name }}</h5>
+                    </a>
+                    {% if project.author.bio %}
+                        <p class="text-muted">{{ project.author.bio|truncatechars:100 }}</p>
+                    {% endif %}
+                    <a href="{% url 'user_profile' project.author.username %}" class="btn btn-outline-primary">Профиль автора</a>
+                </div>
+            </div>
+            
+            <!-- Похожие проекты -->
+            {% if similar_projects %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Похожие проекты</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group list-group-flush">
+                            {% for similar in similar_projects %}
+                                <a href="{% url 'project_detail' similar.slug %}" class="list-group-item list-group-item-action d-flex align-items-center">
+                                    <img src="{{ similar.thumbnail.url }}" alt="{{ similar.title }}" class="img-fluid rounded me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                    <div>
+                                        <h6 class="mb-1">{{ similar.title }}</h6>
+                                        <small class="text-muted">{{ similar.created_at|date:"d.m.Y" }}</small>
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Обработка лайков
+        $('#like-button').click(function() {
+            $.ajax({
+                url: '{% url "project_like" project.id %}',
+                type: 'POST',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(data) {
+                    $('#likes-count').text(data.likes_count);
+                    if (data.status === 'liked') {
+                        $('#like-icon').addClass('text-danger');
+                        $('#like-button').text('Убрать лайк');
+                    } else {
+                        $('#like-icon').removeClass('text-danger');
+                        $('#like-button').text('Лайкнуть');
+                    }
+                }
+            });
+        });
+        
+        // Обработка комментариев через AJAX
+        $('#comment-form').submit(function(e) {
+            e.preventDefault();
+            $.ajax({
+                url: $(this).attr('action'),
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function(data) {
+                    if (data.status === 'success') {
+                        // Добавляем новый комментарий в начало списка
+                        var newComment = `
+                            <div class="card mb-3" id="comment-${data.comment_id}">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <div class="d-flex align-items-center">
+                                            <a href="{% url 'user_profile' user.username %}" class="text-decoration-none text-dark">
+                                                {% if user.avatar %}
+                                                    <img src="{{ user.avatar.url }}" alt="{{ user.username }}" class="avatar-sm me-2">
+                                                {% else %}
+                                                    <i class="fas fa-user-circle fa-2x me-2 text-secondary"></i>
+                                                {% endif %}
+                                                <span>${data.author}</span>
+                                            </a>
+                                        </div>
+                                        <small class="text-muted">${data.created_at}</small>
+                                    </div>
+                                    <p class="mb-1">${data.content}</p>
+                                    <div class="text-end">
+                                        <form method="post" action="/comments/delete/${data.comment_id}/" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Удалить</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        if ($('#comments-list .alert').length) {
+                            $('#comments-list').html(newComment);
+                        } else {
+                            $('#comments-list').prepend(newComment);
+                        }
+                        
+                        // Очищаем форму
+                        $('#id_content').val('');
+                    }
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}
+
